@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Groq Chatbot</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="shortcut icon" href="https://chat.openai.com/favicon.ico" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white font-sans antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="left bg-gray-800 bg-opacity-80 backdrop-blur-md w-full md:w-80 p-6 flex flex-col transition-all duration-300 transform md:translate-x-0 z-50">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-white">Chat History</h2>
+                <button id="toggleSidebar" class="md:hidden text-white focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <button id="newChatBtn" class="w-full py-3 px-4 mb-4 bg-indigo-600 rounded-lg flex items-center space-x-2 hover:bg-indigo-700 transition transform hover:scale-105 duration-200">
+                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" class="h-5 w-5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>New Chat</span>
+            </button>
+            <button id="clearChatsBtn" class="w-full py-3 px-4 mb-4 bg-red-600 rounded-lg flex items-center space-x-2 hover:bg-red-700 transition transform hover:scale-105 duration-200">
+                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" class="h-5 w-5">
+                    <path d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                <span>Clear History</span>
+            </button>
+            <input id="searchInput" type="text" placeholder="Search chats..." class="w-full p-3 mb-4 bg-gray-700 bg-opacity-50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 transition duration-200">
+            <div class="chats flex flex-col space-y-3 overflow-y-auto">
+                {% for chat in myChats %}
+                <div class="chat flex justify-between items-center space-x-2 w-full p-4 rounded-lg bg-gray-700 bg-opacity-50 cursor-pointer hover:bg-gray-600 hover:shadow-lg transition transform hover:scale-102 duration-200 animate-slide-in" data-id="{{ chat._id }}">
+                    <div class="flex items-center space-x-3">
+                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" class="h-5 w-5">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 1 1 2 2z"></path>
+                        </svg>
+                        <span class="truncate">{{ chat.question }}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="text-xs text-gray-400">{{ chat.timestamp }}</div>
+                        <button class="delete-chat text-red-400 hover:text-red-600 transition duration-200" data-id="{{ chat._id }}">
+                            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" class="h-5 w-5">
+                                <path d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Main panel -->
+        <div class="right1 w-full flex justify-center items-center flex-col p-6 transition-all duration-500 animate-fade-in">
+            <div class="text-center w-full text-4xl md:text-5xl font-extrabold my-10 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-pink-600">Chat with Grok</div>
+            <div class="input w-full max-w-3xl text-center my-10 flex flex-col items-center">
+                <select id="modelSelect" class="w-full p-3 mb-4 bg-gray-700 bg-opacity-50 rounded-lg text-white focus:ring-2 focus:ring-indigo-500 transition duration-200">
+                    <option value="llama3-8b-8192">LLaMA 3 8B</option>
+                    <option value="llama3-70b-8192">LLaMA 3 70B</option>
+                    <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                </select>
+                <div class="w-full flex items-center relative">
+                    <input class="w-full p-4 bg-gray-700 bg-opacity-50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 transition duration-200" placeholder="Send a Message" type="text" id="questionInput">
+                    <button id="sendButton" class="absolute right-2 p-2 hover:bg-indigo-600 rounded-full transition transform hover:scale-110 duration-200">
+                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" class="h-6 w-6">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+                <div class="text-xs py-2 text-gray-400">Powered by xAI. May produce inaccurate info.</div>
+            </div>
+        </div>
+
+        <!-- Answer panel -->
+        <div class="right2 w-full flex flex-col items-center h-full p-6 overflow-y-auto transition-all duration-500 animate-fade-in hidden">
+            <div class="w-full max-w-3xl flex flex-col space-y-6">
+                <div class="box1 py-4 flex items-center space-x-4 bg-gray-700 bg-opacity-50 rounded-lg shadow-lg">
+                    <img class="w-10 h-10 rounded-full" src="https://chat.openai.com/favicon.ico" alt="Grok">
+                    <div id="question2" class="text-xl font-semibold text-white"></div>
+                </div>
+                <div class="box2 bg-gray-700 bg-opacity-50 py-6 flex justify-center items-center rounded-lg shadow-lg">
+                    <div class="box w-full max-w-3xl flex flex-col space-y-4 px-4">
+                        <div class="flex items-start space-x-4">
+                            <img class="w-10 h-10 rounded-full" src="https://chat.openai.com/favicon.ico" alt="Grok">
+                            <div class="flex flex-col space-y-3">
+                                <div id="question1" class="text-xl font-semibold text-white"></div>
+                                <div id="solution" class="text-gray-300 leading-relaxed prose prose-invert max-w-none"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input w-full text-center my-6 flex flex-col items-center">
+                    <select id="modelSelect2" class="w-full p-3 mb-4 bg-gray-700 bg-opacity-50 rounded-lg text-white focus:ring-2 focus:ring-indigo-500 transition duration-200">
+                        <option value="llama3-8b-8192">LLaMA 3 8B</option>
+                        <option value="llama3-70b-8192">LLaMA 3 70B</option>
+                        <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                    </select>
+                    <div class="w-full flex items-center relative">
+                        <input class="w-full p-4 bg-gray-700 bg-opacity-50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 transition duration-200" placeholder="Ask another question..." type="text" id="questionInput2">
+                        <button id="sendButton2" class="absolute right-2 p-2 hover:bg-indigo-600 rounded-full transition transform hover:scale-110 duration-200">
+                            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" class="h-6 w-6">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden transition-opacity duration-300">
+        <div class="bg-gray-800 bg-opacity-90 backdrop-blur-md p-8 rounded-xl shadow-2xl transform scale-95 animate-modal-in">
+            <div id="errorMessage" class="text-red-400 text-lg mb-4"></div>
+            <button id="closeError" class="px-6 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-700 transition transform hover:scale-105 duration-200">Close</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.12/marked.min.js"></script>
+    <script src="/static/js/script.js"></script>
+    <script>
+        // Enhance response rendering with markdown and syntax highlighting
+        document.addEventListener('DOMContentLoaded', () => {
+            const solutionDiv = document.getElementById('solution');
+            const originalInnerHTML = solutionDiv.innerHTML;
+            if (originalInnerHTML && !originalInnerHTML.includes('loading-spinner')) {
+                solutionDiv.innerHTML = marked.parse(originalInnerHTML);
+                Prism.highlightAll();
+            }
+        });
+
+        // Update solution rendering when new response is received
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.target.id === 'solution' && !mutation.target.innerHTML.includes('loading-spinner')) {
+                    mutation.target.innerHTML = marked.parse(mutation.target.innerHTML);
+                    Prism.highlightAll();
+                }
+            });
+        });
+        observer.observe(document.getElementById('solution'), { childList: true, subtree: true });
+    </script>
+</body>
+</html>
