@@ -55,7 +55,7 @@ Please note that while this chatbot aims to provide realistic and informative re
 ## Screenshots
 
 ![Output Screenshot]
-![](https://github.com/Vsurya30/GPTclone/blob/main/page1.png)
+![](https://github.com/jayeshdhobi/simple-chatbot/blob/master/page1.png)
 ![](https://github.com/Vsurya30/GPTclone/blob/main/page2.png)
 
 
