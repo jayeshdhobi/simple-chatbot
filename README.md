@@ -54,9 +54,9 @@ Please note that while this chatbot aims to provide realistic and informative re
 
 ## Screenshots
 
-![Output Screenshot](https://github.com/Vsurya30/GPTclone/blob/main/chatgptclone.png)
-![](https://github.com/Vsurya30/GPTclone/blob/main/chatgptclone2.png)
-
+![Output Screenshot]
+![](https://github.com/Vsurya30/GPTclone/blob/main/page1.png)
+![](https://github.com/Vsurya30/GPTclone/blob/main/page2.png)
 
 
 ## Acknowledgements
